@@ -3,4 +3,5 @@ com.github.maojx0630.auth_token.config.AuthTokenConfig,\
 com.github.maojx0630.auth_token.config.LoginAuthTokenConfig,\
 com.github.maojx0630.auth_token.config.PermissionsAuthTokenConfig,\
 com.github.maojx0630.auth_token.config.RoleAuthTokenConfig,\
-com.github.maojx0630.auth_token.AuthTokenConfiguration
+com.github.maojx0630.auth_token.AuthTokenConfiguration,\
+com.github.maojx0630.auth_token.DefaultBeanConfiguration

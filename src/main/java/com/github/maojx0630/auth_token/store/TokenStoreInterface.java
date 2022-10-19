@@ -2,7 +2,8 @@ package com.github.maojx0630.auth_token.store;
 
 import com.github.maojx0630.auth_token.user.model.AuthTokenRes;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * @author 毛家兴
@@ -40,7 +41,7 @@ public interface TokenStoreInterface {
    * @author 毛家兴
    * @since 2022/10/19 10:27
    */
-  List<AuthTokenRes> getUserAll(String userKey);
+  Collection<AuthTokenRes> getUserAll(String userKey);
 
   /**
    * 获取一个用户所有的token key
@@ -50,7 +51,8 @@ public interface TokenStoreInterface {
    * @author 毛家兴
    * @since 2022/10/19 13:41
    */
-  List<String> getUserAllTokenKey(String userKey);
+  Collection<String> getUserAllTokenKey(String userKey);
+
   /**
    * 移除一个用户所有的token
    *
@@ -58,7 +60,11 @@ public interface TokenStoreInterface {
    * @author 毛家兴
    * @since 2022/10/19 13:21
    */
-  void removeUser(String userKey);
+  default void removeUser(String userKey) {
+    removeUser(Collections.singletonList(userKey));
+  }
+
+  void removeUser(Collection<String> userKey);
 
   /**
    * 移除一个用户的一个token
@@ -68,7 +74,11 @@ public interface TokenStoreInterface {
    * @author 毛家兴
    * @since 2022/10/19 13:22
    */
-  void removeToken(String userKey, String tokenKey);
+  default void removeToken(String userKey, String tokenKey) {
+    removeToken(userKey, Collections.singletonList(tokenKey));
+  }
+
+  void removeToken(String userKey, Collection<String> tokenKey);
 
   /**
    * 清理所有用户
