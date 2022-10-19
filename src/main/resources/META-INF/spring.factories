@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.github.maojx0630.auth_token.AuthTokenConfiguration,\
+com.github.maojx0630.auth_token.AuthTokenConfig
