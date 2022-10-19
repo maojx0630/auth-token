@@ -1,7 +1,8 @@
 package com.github.maojx0630.auth_token.core.login;
 
-import com.github.maojx0630.auth_token.config.AuthTokenConfig;
+import com.github.maojx0630.auth_token.AuthTokenUtil;
 import com.github.maojx0630.auth_token.config.LoginAuthTokenConfig;
+import com.github.maojx0630.auth_token.util.ResponseUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,18 +16,20 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class LoginInterceptor implements HandlerInterceptor {
 
-  private final AuthTokenConfig authTokenConfig;
-
   private final LoginAuthTokenConfig loginConfig;
 
-  public LoginInterceptor(AuthTokenConfig authTokenConfig, LoginAuthTokenConfig loginConfig) {
-    this.authTokenConfig = authTokenConfig;
+  public LoginInterceptor(LoginAuthTokenConfig loginConfig) {
     this.loginConfig = loginConfig;
   }
 
   @Override
   public boolean preHandle(
       HttpServletRequest request, HttpServletResponse response, Object handler) {
-    return true;
+    if (AuthTokenUtil.getOptUser().isPresent()) {
+      return true;
+    } else {
+      ResponseUtils.writeStr(response, loginConfig.getHttpCode(), loginConfig.getMessage());
+      return false;
+    }
   }
 }

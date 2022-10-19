@@ -51,7 +51,7 @@ public class AuthTokenConfiguration implements WebMvcConfigurer, InitializingBea
         .addPathPatterns("/**");
     if (loginConfig.isEnable()) {
       registry
-          .addInterceptor(new LoginInterceptor(config, loginConfig))
+          .addInterceptor(new LoginInterceptor(loginConfig))
           .order(loginConfig.getOrder())
           .addPathPatterns(loginConfig.getLoginPath())
           .excludePathPatterns(loginConfig.getLoginExcludePath());
