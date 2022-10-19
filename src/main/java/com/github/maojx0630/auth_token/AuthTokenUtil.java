@@ -5,6 +5,8 @@ import cn.hutool.core.util.*;
 import cn.hutool.crypto.asymmetric.Sign;
 import cn.hutool.crypto.asymmetric.SignAlgorithm;
 import com.alibaba.ttl.TransmittableThreadLocal;
+import com.github.maojx0630.auth_token.config.AuthTokenConfig;
+import com.github.maojx0630.auth_token.exception.AuthTokenException;
 import com.github.maojx0630.auth_token.store.TokenStoreInterface;
 import com.github.maojx0630.auth_token.user.model.AuthTokenRes;
 import com.github.maojx0630.auth_token.user.model.LoginParam;
@@ -33,6 +35,28 @@ public abstract class AuthTokenUtil {
       new TransmittableThreadLocal<>();
 
   private AuthTokenUtil() {}
+
+  /**
+   * 获取登录用户 如果未登录会抛出异常
+   *
+   * @return com.github.maojx0630.auth_token.user.model.AuthTokenRes
+   * @author 毛家兴
+   * @since 2022/10/19 15:06
+   */
+  public static AuthTokenRes getUser() {
+    return getOptUser().orElseThrow(() -> AuthTokenException.of("用户未登录"));
+  }
+
+  /**
+   * 获取登录用户 可能为空
+   *
+   * @return java.util.Optional<com.github.maojx0630.auth_token.user.model.AuthTokenRes>
+   * @author 毛家兴
+   * @since 2022/10/19 15:06
+   */
+  public static Optional<AuthTokenRes> getOptUser() {
+    return Optional.ofNullable(THREAD_LOCAL.get());
+  }
 
   /** 用户登录功能 */
   public static AuthTokenRes login(String id) {

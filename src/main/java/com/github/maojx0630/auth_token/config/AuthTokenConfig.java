@@ -1,17 +1,14 @@
-package com.github.maojx0630.auth_token;
+package com.github.maojx0630.auth_token.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author 毛家兴
  * @since 2022/10/17 16:21
  */
 @Configuration
-@ConfigurationProperties(prefix = "auth-token")
+@ConfigurationProperties(prefix = "auth-token.core")
 public class AuthTokenConfig {
 
   /** 设置为true会使用redis存储token信息 (使用spring data redis操作redis) */
@@ -40,30 +37,6 @@ public class AuthTokenConfig {
   /** 是否允许同一账号并发登录 (为true时允许一起登录, 为false时新登录挤掉旧登录) */
   private boolean concurrentLogin = true;
 
-  /** 是否启用登录拦截器 */
-  private boolean loginHandlerInterceptor = true;
-
-  /** 登录拦截器执行顺序 */
-  private int loginHandlerInterceptorOrder = 1;
-
-  /** 登录拦截路径 */
-  private List<String> loginPath = Collections.singletonList("/**");
-
-  /** 排除登录拦截路径 */
-  private List<String> loginExcludePath = Collections.singletonList("/login/**");
-
-  /** 是否启用角色拦截器 */
-  private boolean roleHandlerInterceptor = false;
-
-  /** 角色拦截器执行顺序 */
-  private int roleHandlerInterceptorOrder = 2;
-
-  /** 是否启用权限拦截器 */
-  private boolean permissionsHandlerInterceptor = false;
-
-  /** 权限拦截器执行顺序 */
-  private int permissionsHandlerInterceptorOrder = 2;
-
   /** token拦截器执行顺序 */
   private int authTokenHandlerInterceptorOrder = 0;
 
@@ -74,6 +47,14 @@ public class AuthTokenConfig {
   /** 用户token信息签名校验使用 可以通过 SecureUtil.sign(SignAlgorithm.SHA256withRSA)重新生成 */
   private String signPrivateKeyBase64 =
       "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAMpTsAVujhl4pz/X11ygR8vT9q+A4O2Awts/RKR1zqgA/s6QKGLMmF64Cvp9Y6AjfH6nDFYrmHjGWHcmXAvYtj3BQ7ORYCQ2ABuf6aXsryrW+KjHgPusDCbXxzV3tP+6NeCgDAuvKZxMW1vHcr9KdYvDdJK7Z6AV3VSM45oekqwnAgMBAAECgYEAhC3ePf426V8QbL4W3VV88iV88LVSvPa01kVkE8k/BDT6QnqdV8Zv+NllmrXWIyVrzNZXUehTSPvTiavO0JJ4o4Af4wN6FqLcXcuBhN4QJR6d4Rh8ZooYZCceXOjfyERU76jtk/Fz2Y8w7w1M3gilg6j9Vrg61eDQ2uj5ib8163kCQQDqu2+Zni+nafQfAy27F4y4O/phUIp+oOl0muhXOZYxKOrGMQ3Fj6qRtABy5ifOEt1Pd+mmDaUazK2aAv8E8ze1AkEA3KieQfochDBM7BTuhlwHGTllu0tcQNDd8zut/RxjxtUmgrmUrZz2tB2SALcScgCVrBV859QTRTcBI+RsGVgF6wJAPBJj6Sh2gZ24AAfMOEk6lhujZCw8hVOg61qJg2kVatdR3g7Hu3uc51TtmHoWTcK+KIxDm196lXU0KGoD4bxs0QJAUN0WShVvd93/gpDVLLXzAAJxzqZ6Y2JnxCh9xYEu64HXgBakbs9T9YPUqqBsiQy/zPV+9bJZcYcLyux91PfWCwJAV55zsKrjU4k4rHpaSnD4CcH0W2HpG6jn4wBSwLD2GgbmglpcYJQEwBxxaPlTij5Fx0H7Xqemphhgttx2UcnR0Q==";
+
+  public boolean isRedisCache() {
+    return redisCache;
+  }
+
+  public void setRedisCache(boolean redisCache) {
+    this.redisCache = redisCache;
+  }
 
   public String getRedisHead() {
     return redisHead;
@@ -137,70 +118,6 @@ public class AuthTokenConfig {
 
   public void setConcurrentLogin(boolean concurrentLogin) {
     this.concurrentLogin = concurrentLogin;
-  }
-
-  public boolean isLoginHandlerInterceptor() {
-    return loginHandlerInterceptor;
-  }
-
-  public void setLoginHandlerInterceptor(boolean loginHandlerInterceptor) {
-    this.loginHandlerInterceptor = loginHandlerInterceptor;
-  }
-
-  public int getLoginHandlerInterceptorOrder() {
-    return loginHandlerInterceptorOrder;
-  }
-
-  public void setLoginHandlerInterceptorOrder(int loginHandlerInterceptorOrder) {
-    this.loginHandlerInterceptorOrder = loginHandlerInterceptorOrder;
-  }
-
-  public List<String> getLoginPath() {
-    return loginPath;
-  }
-
-  public void setLoginPath(List<String> loginPath) {
-    this.loginPath = loginPath;
-  }
-
-  public List<String> getLoginExcludePath() {
-    return loginExcludePath;
-  }
-
-  public void setLoginExcludePath(List<String> loginExcludePath) {
-    this.loginExcludePath = loginExcludePath;
-  }
-
-  public boolean isRoleHandlerInterceptor() {
-    return roleHandlerInterceptor;
-  }
-
-  public void setRoleHandlerInterceptor(boolean roleHandlerInterceptor) {
-    this.roleHandlerInterceptor = roleHandlerInterceptor;
-  }
-
-  public int getRoleHandlerInterceptorOrder() {
-    return roleHandlerInterceptorOrder;
-  }
-
-  public void setRoleHandlerInterceptorOrder(int roleHandlerInterceptorOrder) {
-    this.roleHandlerInterceptorOrder = roleHandlerInterceptorOrder;
-  }
-
-  public boolean isPermissionsHandlerInterceptor() {
-    return permissionsHandlerInterceptor;
-  }
-
-  public void setPermissionsHandlerInterceptor(boolean permissionsHandlerInterceptor) {
-    this.permissionsHandlerInterceptor = permissionsHandlerInterceptor;
-  }
-
-  public int getPermissionsHandlerInterceptorOrder() {
-    return permissionsHandlerInterceptorOrder;
-  }
-
-  public void setPermissionsHandlerInterceptorOrder(int permissionsHandlerInterceptorOrder) {
-    this.permissionsHandlerInterceptorOrder = permissionsHandlerInterceptorOrder;
   }
 
   public int getAuthTokenHandlerInterceptorOrder() {

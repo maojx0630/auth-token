@@ -1,7 +1,11 @@
 package com.github.maojx0630.auth_token.core.login;
 
-import com.github.maojx0630.auth_token.AuthTokenConfig;
+import com.github.maojx0630.auth_token.config.AuthTokenConfig;
+import com.github.maojx0630.auth_token.config.LoginAuthTokenConfig;
 import org.springframework.web.servlet.HandlerInterceptor;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 登录拦截器
@@ -11,9 +15,18 @@ import org.springframework.web.servlet.HandlerInterceptor;
  */
 public class LoginInterceptor implements HandlerInterceptor {
 
-  private AuthTokenConfig authTokenConfig;
+  private final AuthTokenConfig authTokenConfig;
 
-  public LoginInterceptor(AuthTokenConfig authTokenConfig) {
+  private final LoginAuthTokenConfig loginConfig;
+
+  public LoginInterceptor(AuthTokenConfig authTokenConfig, LoginAuthTokenConfig loginConfig) {
     this.authTokenConfig = authTokenConfig;
+    this.loginConfig = loginConfig;
+  }
+
+  @Override
+  public boolean preHandle(
+      HttpServletRequest request, HttpServletResponse response, Object handler) {
+    return true;
   }
 }

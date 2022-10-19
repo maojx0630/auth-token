@@ -1,7 +1,7 @@
 package com.github.maojx0630.auth_token.user.model;
 
 import cn.hutool.core.util.StrUtil;
-import com.github.maojx0630.auth_token.AuthTokenConfig;
+import com.github.maojx0630.auth_token.config.AuthTokenConfig;
 import com.github.maojx0630.auth_token.ContextUtil;
 
 /**
