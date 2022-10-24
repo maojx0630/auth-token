@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
+ * token存储接口
+ *
  * @author 毛家兴
  * @since 2022/10/19 10:19
  */
@@ -23,7 +25,7 @@ public interface TokenStoreInterface {
   void put(String userKey, String tokenKey, AuthTokenRes res);
 
   /**
-   * 根据key获取token信息 需自己实现token过期
+   * 根据key获取token信息
    *
    * @param userKey 用户key
    * @param tokenKey token key

@@ -1,7 +1,12 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.github.maojx0630.auth_token.config.AuthTokenConfig,\
-com.github.maojx0630.auth_token.config.LoginAuthTokenConfig,\
-com.github.maojx0630.auth_token.config.PermissionsAuthTokenConfig,\
-com.github.maojx0630.auth_token.config.RoleAuthTokenConfig,\
+com.github.maojx0630.auth_token.config.login.LoginAuthTokenConfig,\
+com.github.maojx0630.auth_token.config.login.LoginAuthTokenConfiguration,\
+com.github.maojx0630.auth_token.config.permissions.PermissionsAuthTokenConfig,\
+com.github.maojx0630.auth_token.config.permissions.PermissionsAuthTokenConfiguration,\
+com.github.maojx0630.auth_token.config.role.RoleAuthTokenConfig,\
+com.github.maojx0630.auth_token.config.role.RoleAuthTokenConfiguration,\
 com.github.maojx0630.auth_token.AuthTokenConfiguration,\
-com.github.maojx0630.auth_token.DefaultBeanConfiguration
+com.github.maojx0630.auth_token.store.LocalTokenStoreConfiguration,\
+com.github.maojx0630.auth_token.store.RedisTokenStoreConfiguration
+

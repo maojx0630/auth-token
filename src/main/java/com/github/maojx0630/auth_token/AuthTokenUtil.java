@@ -1,6 +1,6 @@
 package com.github.maojx0630.auth_token;
 
-import cn.hutool.core.codec.Base64;
+import cn.hutool.core.codec.Base62;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.crypto.asymmetric.Sign;
@@ -79,11 +79,12 @@ public abstract class AuthTokenUtil {
     AuthTokenRes res = new AuthTokenRes();
     res.setId(id);
     res.setTimeout(param.getTimeout());
+    res.setUserType(param.getUserType());
     res.setLoginTime(System.currentTimeMillis());
     res.setLastAccessTime(System.currentTimeMillis());
     res.setDeviceType(param.getDeviceType());
     res.setDeviceName(param.getDeviceName());
-    res.setTokenKey(res.getDeviceType() + "#" + IdUtil.fastSimpleUUID());
+    res.setTokenKey(IdUtil.fastSimpleUUID());
     res.setUserKey(config.getRedisHead() + "_" + res.getUserType() + "_" + res.getId());
     res.setToken(generateToken(res.getUserKey(), res.getTokenKey()));
     // 并发登录移除
@@ -163,7 +164,7 @@ public abstract class AuthTokenUtil {
    */
   static boolean verifyToken(String token) {
     try {
-      String str = Base64.decodeStr(token);
+      String str = Base62.decodeStr(token);
       List<String> split = StrUtil.split(str, "&&");
       String data = split.get(0);
       String signHex = split.get(1);
@@ -172,14 +173,14 @@ public abstract class AuthTokenUtil {
           StrUtil.bytes(data, CharsetUtil.CHARSET_UTF_8), HexUtil.decodeHex(signHex))) {
         return false;
       }
-      List<String> list = StrUtil.split(data, "_");
+      List<String> list = StrUtil.split(data, "@");
       AuthTokenRes authTokenRes = tokenStore.get(list.get(0), list.get(1));
       if (authTokenRes == null) {
         return false;
       } else {
         // 判断是否过期
         if (authTokenRes.getTimeout()
-            > System.currentTimeMillis() - authTokenRes.getLastAccessTime()) {
+            <= System.currentTimeMillis() - authTokenRes.getLastAccessTime()) {
           tokenStore.removeToken(authTokenRes.getUserKey(), authTokenRes.getTokenKey());
           return false;
         }
@@ -236,8 +237,8 @@ public abstract class AuthTokenUtil {
   /** 生成token */
   private static String generateToken(String userKey, String tokenKey) {
     String randomString = RandomUtil.randomString(RandomUtil.randomInt(10, 20));
-    String data = userKey + "_" + tokenKey + "_" + randomString;
-    return Base64.encode(data + "&&" + sign.signHex(data));
+    String data = userKey + "@" + tokenKey + "@" + randomString;
+    return Base62.encode(data + "&&" + sign.signHex(data));
   }
 
   /** 初始化配置 */

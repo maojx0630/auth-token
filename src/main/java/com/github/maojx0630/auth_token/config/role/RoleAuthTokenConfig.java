@@ -1,4 +1,4 @@
-package com.github.maojx0630.auth_token.config;
+package com.github.maojx0630.auth_token.config.role;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

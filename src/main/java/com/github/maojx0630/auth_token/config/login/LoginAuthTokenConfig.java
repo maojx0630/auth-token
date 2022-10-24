@@ -1,4 +1,4 @@
-package com.github.maojx0630.auth_token.config;
+package com.github.maojx0630.auth_token.config.login;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +24,7 @@ public class LoginAuthTokenConfig {
   private int httpCode = 401;
 
   /** 登录拦截提示语 */
-  private String message = "";
+  private String message = "{\"state\":401,\"message\":\"用户未登录\"}";
 
   /** 登录拦截路径 */
   private List<String> loginPath = Collections.singletonList("/**");
