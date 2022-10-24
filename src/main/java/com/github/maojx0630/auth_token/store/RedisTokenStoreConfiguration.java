@@ -18,7 +18,7 @@ public class RedisTokenStoreConfiguration {
 
   @Bean
   public TokenStoreInterface redisTokenStoreInterface(
-      AuthTokenConfig config, RedisTemplate<String, ?> redisTemplate) {
+      AuthTokenConfig config, RedisTemplate<String, String> redisTemplate) {
     return new RedisTokenStoreImpl(config.getRedisHead(), redisTemplate);
   }
 }
