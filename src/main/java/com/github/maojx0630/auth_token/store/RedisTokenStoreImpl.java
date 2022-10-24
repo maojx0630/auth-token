@@ -1,6 +1,6 @@
 package com.github.maojx0630.auth_token.store;
 
-import com.github.maojx0630.auth_token.user.model.AuthTokenRes;
+import com.github.maojx0630.auth_token.model.AuthTokenRes;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;

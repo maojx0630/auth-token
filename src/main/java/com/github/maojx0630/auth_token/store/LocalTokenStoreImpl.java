@@ -2,7 +2,7 @@ package com.github.maojx0630.auth_token.store;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.maojx0630.auth_token.user.model.AuthTokenRes;
+import com.github.maojx0630.auth_token.model.AuthTokenRes;
 
 import java.util.Collection;
 import java.util.Collections;

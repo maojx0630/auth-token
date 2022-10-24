@@ -1,6 +1,6 @@
 package com.github.maojx0630.auth_token.store;
 
-import com.github.maojx0630.auth_token.user.model.AuthTokenRes;
+import com.github.maojx0630.auth_token.model.AuthTokenRes;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -27,7 +27,7 @@ public interface TokenStoreInterface {
    *
    * @param userKey 用户key
    * @param tokenKey token key
-   * @return com.github.maojx0630.auth_token.user.model.AuthTokenRes
+   * @return com.github.maojx0630.auth_token.model.AuthTokenRes
    * @author 毛家兴
    * @since 2022/10/19 10:26
    */
@@ -46,7 +46,7 @@ public interface TokenStoreInterface {
    * 获取一个用户所有的登录信息
    *
    * @param userKey 用户key
-   * @return java.util.List<com.github.maojx0630.auth_token.user.model.AuthTokenRes>
+   * @return java.util.List<com.github.maojx0630.auth_token.model.AuthTokenRes>
    * @author 毛家兴
    * @since 2022/10/19 10:27
    */

@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class AuthTokenInterceptor implements HandlerInterceptor {
 
-  private AuthTokenConfig authTokenConfig;
+  private final AuthTokenConfig authTokenConfig;
 
   public AuthTokenInterceptor(AuthTokenConfig authTokenConfig) {
     this.authTokenConfig = authTokenConfig;

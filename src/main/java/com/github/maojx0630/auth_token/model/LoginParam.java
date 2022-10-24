@@ -1,8 +1,8 @@
-package com.github.maojx0630.auth_token.user.model;
+package com.github.maojx0630.auth_token.model;
 
 import cn.hutool.core.util.StrUtil;
-import com.github.maojx0630.auth_token.config.AuthTokenConfig;
 import com.github.maojx0630.auth_token.ContextUtil;
+import com.github.maojx0630.auth_token.config.AuthTokenConfig;
 
 /**
  * @author 毛家兴
@@ -24,25 +24,13 @@ public class LoginParam {
     return timeout;
   }
 
-  public Long getLoginTime() {
-    return loginTime;
-  }
-
-  public String getUserType() {
-    return userType;
-  }
-
-  public String getDeviceType() {
-    return deviceType;
-  }
-
-  public String getDeviceName() {
-    return deviceName;
-  }
-
   public LoginParam setTimeout(Long timeout) {
     this.timeout = timeout;
     return this;
+  }
+
+  public Long getLoginTime() {
+    return loginTime;
   }
 
   public LoginParam setLoginTime(Long loginTime) {
@@ -50,14 +38,26 @@ public class LoginParam {
     return this;
   }
 
+  public String getUserType() {
+    return userType;
+  }
+
   public LoginParam setUserType(String userType) {
     this.userType = userType;
     return this;
   }
 
+  public String getDeviceType() {
+    return deviceType;
+  }
+
   public LoginParam setDeviceType(String deviceType) {
     this.deviceType = deviceType;
     return this;
+  }
+
+  public String getDeviceName() {
+    return deviceName;
   }
 
   public LoginParam setDeviceName(String deviceName) {

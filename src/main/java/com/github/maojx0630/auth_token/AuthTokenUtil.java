@@ -8,9 +8,9 @@ import cn.hutool.crypto.asymmetric.SignAlgorithm;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.github.maojx0630.auth_token.config.AuthTokenConfig;
 import com.github.maojx0630.auth_token.exception.AuthTokenException;
+import com.github.maojx0630.auth_token.model.AuthTokenRes;
+import com.github.maojx0630.auth_token.model.LoginParam;
 import com.github.maojx0630.auth_token.store.TokenStoreInterface;
-import com.github.maojx0630.auth_token.user.model.AuthTokenRes;
-import com.github.maojx0630.auth_token.user.model.LoginParam;
 import org.springframework.context.ApplicationContext;
 
 import java.util.HashSet;
@@ -24,25 +24,22 @@ import java.util.Set;
  */
 public abstract class AuthTokenUtil {
 
-  /** 签名及校验工具 */
-  private static Sign sign;
-
-  /** 配置文件 */
-  private static AuthTokenConfig config;
-
-  /** token存储 */
-  private static TokenStoreInterface tokenStore;
-
   /** THREAD_LOCAL */
   private static final TransmittableThreadLocal<AuthTokenRes> THREAD_LOCAL =
       new TransmittableThreadLocal<>();
+  /** 签名及校验工具 */
+  private static Sign sign;
+  /** 配置文件 */
+  private static AuthTokenConfig config;
+  /** token存储 */
+  private static TokenStoreInterface tokenStore;
 
   private AuthTokenUtil() {}
 
   /**
    * 获取登录用户 如果未登录会抛出异常
    *
-   * @return com.github.maojx0630.auth_token.user.model.AuthTokenRes
+   * @return com.github.maojx0630.auth_token.model.AuthTokenRes
    * @author 毛家兴
    * @since 2022/10/19 15:06
    */
@@ -53,7 +50,7 @@ public abstract class AuthTokenUtil {
   /**
    * 获取登录用户 可能为空
    *
-   * @return java.util.Optional<com.github.maojx0630.auth_token.user.model.AuthTokenRes>
+   * @return java.util.Optional<com.github.maojx0630.auth_token.model.AuthTokenRes>
    * @author 毛家兴
    * @since 2022/10/19 15:06
    */
@@ -71,7 +68,7 @@ public abstract class AuthTokenUtil {
    *
    * @param id 用户id
    * @param param 补充参数
-   * @return com.github.maojx0630.auth_token.user.model.AuthTokenRes
+   * @return com.github.maojx0630.auth_token.model.AuthTokenRes
    * @author 毛家兴
    * @since 2022/10/19 14:08
    */

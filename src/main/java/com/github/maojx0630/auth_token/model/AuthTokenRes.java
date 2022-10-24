@@ -1,4 +1,4 @@
-package com.github.maojx0630.auth_token.user.model;
+package com.github.maojx0630.auth_token.model;
 
 /**
  * @author 毛家兴
