@@ -6,24 +6,34 @@ package com.github.maojx0630.auth_token.user.model;
  */
 public class AuthTokenRes {
 
+  /** id */
   private String id;
 
+  /** 用户存储key */
   private String userKey;
 
+  /** token存储key */
   private String tokenKey;
 
+  /** 用户token */
   private String token;
 
+  /** 过期时间 */
   private Long timeout;
 
+  /** 登录时间 */
   private Long loginTime;
 
+  /** 用户类型 */
   private String userType;
 
+  /** 最后一次访问时间 */
   private Long lastAccessTime;
 
+  /** 设备类型 */
   private String deviceType;
 
+  /** 设备名称 */
   private String deviceName;
 
   public String getId() {

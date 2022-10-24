@@ -1,6 +1,7 @@
 package com.github.maojx0630.auth_token;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.crypto.asymmetric.Sign;
 import cn.hutool.crypto.asymmetric.SignAlgorithm;
@@ -12,8 +13,10 @@ import com.github.maojx0630.auth_token.user.model.AuthTokenRes;
 import com.github.maojx0630.auth_token.user.model.LoginParam;
 import org.springframework.context.ApplicationContext;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author 毛家兴
@@ -73,7 +76,9 @@ public abstract class AuthTokenUtil {
    * @since 2022/10/19 14:08
    */
   public static AuthTokenRes login(String id, LoginParam param) {
+    // 完善参数信息
     param = Optional.ofNullable(param).orElse(new LoginParam()).build();
+    // 构建登录信息
     AuthTokenRes res = new AuthTokenRes();
     res.setId(id);
     res.setTimeout(param.getTimeout());
@@ -84,6 +89,23 @@ public abstract class AuthTokenUtil {
     res.setTokenKey(res.getDeviceType() + "#" + IdUtil.fastSimpleUUID());
     res.setUserKey(config.getRedisHead() + "_" + res.getUserType() + "_" + res.getId());
     res.setToken(generateToken(res.getUserKey(), res.getTokenKey()));
+    // 并发登录移除
+    if (!config.isConcurrentLogin()) {
+      tokenStore.removeUser(res.getUserKey());
+    }
+    // 同端互斥移除登录
+    if (config.isDeviceReject()) {
+      for (AuthTokenRes tokenRes : tokenStore.getUserAll(res.getUserKey())) {
+        Set<String> keySet = new HashSet<>();
+        if (res.getDeviceType().equals(tokenRes.getDeviceType())) {
+          keySet.add(res.getTokenKey());
+        }
+        if (CollUtil.isNotEmpty(keySet)) {
+          tokenStore.removeToken(res.getUserKey(), keySet);
+        }
+      }
+    }
+    // 设置登录信息 缓存token
     setThreadLocal(res);
     tokenStore.put(res.getUserKey(), res.getTokenKey(), res);
     return res;
@@ -148,6 +170,7 @@ public abstract class AuthTokenUtil {
       List<String> split = StrUtil.split(str, "&&");
       String data = split.get(0);
       String signHex = split.get(1);
+      // 校验签名
       if (!sign.verify(
           StrUtil.bytes(data, CharsetUtil.CHARSET_UTF_8), HexUtil.decodeHex(signHex))) {
         return false;
@@ -157,11 +180,51 @@ public abstract class AuthTokenUtil {
       if (authTokenRes == null) {
         return false;
       } else {
+        // 判断是否过期
+        if (authTokenRes.getTimeout()
+            > System.currentTimeMillis() - authTokenRes.getLastAccessTime()) {
+          tokenStore.removeToken(authTokenRes.getUserKey(), authTokenRes.getTokenKey());
+          return false;
+        }
+        if (config.isOverdueReset()) {
+          authTokenRes.setLastAccessTime(System.currentTimeMillis());
+          tokenStore.put(authTokenRes.getUserKey(), authTokenRes.getTokenKey(), authTokenRes);
+        }
         setThreadLocal(authTokenRes);
         return true;
       }
     } catch (Exception e) {
       return false;
+    }
+  }
+
+  /**
+   * 清理过期token
+   *
+   * @author 毛家兴
+   * @since 2022/10/24 10:10
+   */
+  public static void clearOverdueToken() {
+    for (String userKey : tokenStore.getAllUserKey()) {
+      for (AuthTokenRes res : tokenStore.getUserAll(userKey)) {
+        if (res.getTimeout() > System.currentTimeMillis() - res.getLastAccessTime()) {
+          tokenStore.removeToken(res.getUserKey(), res.getTokenKey());
+        }
+      }
+    }
+  }
+
+  /**
+   * 清理 token为0的user key (线程不安全)
+   *
+   * @author 毛家兴
+   * @since 2022/10/24 10:11
+   */
+  public static void clearOverdueUserKey() {
+    for (String userKey : tokenStore.getAllUserKey()) {
+      if (CollUtil.isEmpty(tokenStore.getUserAllTokenKey(userKey))) {
+        tokenStore.removeUser(userKey);
+      }
     }
   }
 

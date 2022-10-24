@@ -34,6 +34,15 @@ public interface TokenStoreInterface {
   AuthTokenRes get(String userKey, String tokenKey);
 
   /**
+   * 获取当前缓存的全部用户key
+   *
+   * @return java.util.Collection<java.lang.String>
+   * @author 毛家兴
+   * @since 2022/10/24 10:07
+   */
+  Collection<String> getAllUserKey();
+
+  /**
    * 获取一个用户所有的登录信息
    *
    * @param userKey 用户key

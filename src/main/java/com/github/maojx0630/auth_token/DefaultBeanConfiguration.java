@@ -6,6 +6,7 @@ import com.github.maojx0630.auth_token.store.RedisTokenStoreImpl;
 import com.github.maojx0630.auth_token.store.TokenStoreInterface;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -16,6 +17,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 @Configuration
 public class DefaultBeanConfiguration {
 
+  @Bean
   @ConditionalOnMissingBean(TokenStoreInterface.class)
   @ConditionalOnProperty(prefix = "auth-token.core", name = "redisCache", havingValue = "true")
   public TokenStoreInterface redisTokenStoreInterface(
@@ -23,8 +25,10 @@ public class DefaultBeanConfiguration {
     return new RedisTokenStoreImpl(config.getRedisHead(), redisTemplate);
   }
 
+  @Bean
   @ConditionalOnMissingBean(TokenStoreInterface.class)
-  public TokenStoreInterface localTokenStoreInterface(AuthTokenConfig config) {
-    return new LocalTokenStoreImpl(config);
+  @ConditionalOnProperty(prefix = "auth-token.core", name = "redisCache", havingValue = "false")
+  public TokenStoreInterface localTokenStoreInterface() {
+    return new LocalTokenStoreImpl();
   }
 }

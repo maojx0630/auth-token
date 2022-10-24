@@ -6,7 +6,6 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.Collection;
-import java.util.Set;
 
 /**
  * @author 毛家兴
@@ -14,8 +13,8 @@ import java.util.Set;
  */
 public class RedisTokenStoreImpl implements TokenStoreInterface {
 
-  private final String redisHead;
-  private final HashOperations<String, String, AuthTokenRes> hashRedis;
+  protected final String redisHead;
+  protected final HashOperations<String, String, AuthTokenRes> hashRedis;
 
   public RedisTokenStoreImpl(String redisHead, RedisTemplate<String, ?> redisTemplate) {
     this.redisHead = redisHead;
@@ -30,6 +29,12 @@ public class RedisTokenStoreImpl implements TokenStoreInterface {
   @Override
   public AuthTokenRes get(String userKey, String tokenKey) {
     return hashRedis.get(userKey, tokenKey);
+  }
+
+  @Override
+  public Collection<String> getAllUserKey() {
+    RedisOperations<String, ?> operations = hashRedis.getOperations();
+    return operations.keys(redisHead + "*");
   }
 
   @Override
@@ -54,10 +59,9 @@ public class RedisTokenStoreImpl implements TokenStoreInterface {
 
   @Override
   public void clearAllUser() {
-    RedisOperations<String, ?> operations = hashRedis.getOperations();
-    Set<String> keys = operations.keys(redisHead + "*");
+    Collection<String> keys = this.getAllUserKey();
     if (null != keys && !keys.isEmpty()) {
-      operations.delete(keys);
+      hashRedis.getOperations().delete(keys);
     }
   }
 }
