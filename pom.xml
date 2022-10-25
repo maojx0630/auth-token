@@ -70,8 +70,8 @@
         </license>
     </licenses>
     <scm>
-        <url>https://github.com/maojx0630/auth-token</url>
-        <connection>https://github.com/maojx0630/auth-token</connection>
+        <url>https://github.com/maojx0630/auth-token-spring-boot-starter</url>
+        <connection>https://github.com/maojx0630/auth-token-spring-boot-starter</connection>
         <developerConnection>https://github.com/maojx0630</developerConnection>
     </scm>
     <developers>
