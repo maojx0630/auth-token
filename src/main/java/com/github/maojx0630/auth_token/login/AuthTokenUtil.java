@@ -28,12 +28,39 @@ public final class AuthTokenUtil {
   /** THREAD_LOCAL */
   private static final TransmittableThreadLocal<AuthTokenRes> THREAD_LOCAL =
       new TransmittableThreadLocal<>();
+
+  private static final String USER_TYPE = LoginParam.builder().build().userType;
   /** 配置文件 */
   private static AuthTokenConfig config;
   /** token存储 */
   private static TokenStoreInterface tokenStore;
 
   private AuthTokenUtil() {}
+
+  /**
+   * 通过用户id获取user key(使用默认类型)
+   *
+   * @param userId 用户id
+   * @return java.lang.String
+   * @author 毛家兴
+   * @since 2022/10/25 15:41
+   */
+  public static String getUserKey(String userId) {
+    return getUserKey(userId, USER_TYPE);
+  }
+
+  /**
+   * 通过用户id获取 user key
+   *
+   * @param userId 用户id
+   * @param userType 用户类型
+   * @return java.lang.String
+   * @author 毛家兴
+   * @since 2022/10/25 15:41
+   */
+  public static String getUserKey(String userId, String userType) {
+    return config.getRedisHead() + "_" + userType + "_" + userId;
+  }
 
   /**
    * 获取登录用户 如果未登录会抛出异常
@@ -107,7 +134,7 @@ public final class AuthTokenUtil {
     res.setDeviceType(param.deviceType);
     res.setDeviceName(param.deviceName);
     res.setTokenKey(UuidUtil.uuid());
-    res.setUserKey(config.getRedisHead() + "_" + res.getUserType() + "_" + res.getId());
+    res.setUserKey(getUserKey(res.getId(), res.getUserType()));
     res.setToken(generateToken(res.getUserKey(), res.getTokenKey()));
     // 并发登录移除
     if (!config.isConcurrentLogin()) {
@@ -150,8 +177,31 @@ public final class AuthTokenUtil {
    * @author 毛家兴
    * @since 2022/10/19 14:09
    */
-  public static void kickOutUser(String userKey) {
+  public static void kickOutByUserKey(String userKey) {
     tokenStore.removeUser(userKey);
+  }
+
+  /**
+   * 踢出一个用户的所有登录
+   *
+   * @param userId 用户id
+   * @author 毛家兴
+   * @since 2022/10/25 15:43
+   */
+  public static void kickOutByUserId(String userId) {
+    kickOutByUserId(userId, USER_TYPE);
+  }
+
+  /**
+   * 踢出一个用户的所有登录
+   *
+   * @param userId 用户id
+   * @param userType 用户类型
+   * @author 毛家兴
+   * @since 2022/10/25 15:43
+   */
+  public static void kickOutByUserId(String userId, String userType) {
+    tokenStore.removeUser(getUserKey(userId, userType));
   }
 
   /**
