@@ -134,3 +134,7 @@ auth-token:
 
 默认提供了 local(caffeine) 和redis两种实现  
 如果有需要也可自行实现TokenStoreInterface来使用其他存储方式
+
+### 缓存
+
+如果需要 用户信息 权限信息 角色信息缓存都需要自行实现
