@@ -8,6 +8,8 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
+ * 权限拦截器配置器
+ *
  * @author 毛家兴
  * @since 2022/10/19 15:19
  */

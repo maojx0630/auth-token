@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * 登录拦截器配置项
+ *
  * @author 毛家兴
  * @since 2022/10/19 15:19
  */

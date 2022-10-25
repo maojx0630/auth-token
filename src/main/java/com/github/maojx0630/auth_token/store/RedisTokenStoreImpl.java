@@ -1,6 +1,5 @@
 package com.github.maojx0630.auth_token.store;
 
-import cn.hutool.core.collection.CollUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.maojx0630.auth_token.model.AuthTokenRes;
@@ -48,7 +47,7 @@ public class RedisTokenStoreImpl implements TokenStoreInterface {
   public Collection<AuthTokenRes> getUserAll(String userKey) {
     List<String> values = hashRedis.values(userKey);
     List<AuthTokenRes> list = new ArrayList<>();
-    if (CollUtil.isNotEmpty(values)) {
+    if (!values.isEmpty()) {
       for (String value : values) {
         list.add(toRes(value));
       }

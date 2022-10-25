@@ -1,18 +1,21 @@
 package com.github.maojx0630.auth_token.login;
 
-import cn.hutool.core.codec.Base62;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.*;
-import cn.hutool.crypto.asymmetric.Sign;
-import cn.hutool.crypto.asymmetric.SignAlgorithm;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.github.maojx0630.auth_token.config.AuthTokenConfig;
 import com.github.maojx0630.auth_token.exception.AuthTokenException;
 import com.github.maojx0630.auth_token.model.AuthTokenRes;
 import com.github.maojx0630.auth_token.store.TokenStoreInterface;
+import com.github.maojx0630.auth_token.util.Base62;
+import com.github.maojx0630.auth_token.util.UuidUtil;
+import com.github.maojx0630.auth_token.util.rsa.RsaUtils;
 import org.springframework.context.ApplicationContext;
 
-import java.util.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author 毛家兴
@@ -20,11 +23,11 @@ import java.util.*;
  */
 public final class AuthTokenUtil {
 
+  private static final Charset UTF8 = StandardCharsets.UTF_8;
+
   /** THREAD_LOCAL */
   private static final TransmittableThreadLocal<AuthTokenRes> THREAD_LOCAL =
       new TransmittableThreadLocal<>();
-  /** 签名及校验工具 */
-  private static Sign sign;
   /** 配置文件 */
   private static AuthTokenConfig config;
   /** token存储 */
@@ -103,7 +106,7 @@ public final class AuthTokenUtil {
     res.setLastAccessTime(System.currentTimeMillis());
     res.setDeviceType(param.deviceType);
     res.setDeviceName(param.deviceName);
-    res.setTokenKey(IdUtil.fastSimpleUUID());
+    res.setTokenKey(UuidUtil.uuid());
     res.setUserKey(config.getRedisHead() + "_" + res.getUserType() + "_" + res.getId());
     res.setToken(generateToken(res.getUserKey(), res.getTokenKey()));
     // 并发登录移除
@@ -118,7 +121,7 @@ public final class AuthTokenUtil {
           keySet.add(tokenRes.getTokenKey());
         }
       }
-      if (CollUtil.isNotEmpty(keySet)) {
+      if (!keySet.isEmpty()) {
         tokenStore.removeToken(res.getUserKey(), keySet);
       }
     }
@@ -184,17 +187,16 @@ public final class AuthTokenUtil {
    */
   static boolean verifyToken(String token) {
     try {
-      String str = Base62.decodeStr(token);
-      List<String> split = StrUtil.split(str, "&&");
-      String data = split.get(0);
-      String signHex = split.get(1);
+      String str = new String(Base62.decode(token), UTF8);
+      String[] split = str.split("&&");
+      String data = split[0];
+      String sign = split[1];
       // 校验签名
-      if (!sign.verify(
-          StrUtil.bytes(data, CharsetUtil.CHARSET_UTF_8), HexUtil.decodeHex(signHex))) {
+      if (!RsaUtils.verify(data, sign, config.getSignPublicKey())) {
         return false;
       }
-      List<String> list = StrUtil.split(data, "@");
-      AuthTokenRes authTokenRes = tokenStore.get(list.get(0), list.get(1));
+      String[] list = data.split("@");
+      AuthTokenRes authTokenRes = tokenStore.get(list[0], list[1]);
       if (authTokenRes == null) {
         return false;
       } else {
@@ -218,7 +220,7 @@ public final class AuthTokenUtil {
 
   public static void clearOverdueUser(String userKey) {
     Collection<AuthTokenRes> userAll = tokenStore.getUserAll(userKey);
-    if (CollUtil.isNotEmpty(userAll)) {
+    if (null != userAll && !userAll.isEmpty()) {
       checkOverdue(userKey, userAll);
     } else {
       if (userAll != null) {
@@ -235,10 +237,10 @@ public final class AuthTokenUtil {
    */
   public static void clearOverdueToken() {
     Collection<String> allUserKey = tokenStore.getAllUserKey();
-    if (CollUtil.isNotEmpty(allUserKey)) {
+    if (null != allUserKey && !allUserKey.isEmpty()) {
       for (String userKey : allUserKey) {
         Collection<AuthTokenRes> userAll = tokenStore.getUserAll(userKey);
-        if (CollUtil.isNotEmpty(userAll)) {
+        if (null != userAll && !userAll.isEmpty()) {
           checkOverdue(userKey, userAll);
         }
       }
@@ -269,19 +271,18 @@ public final class AuthTokenUtil {
 
   /** 生成token */
   private static String generateToken(String userKey, String tokenKey) {
-    String randomString = RandomUtil.randomString(RandomUtil.randomInt(10, 20));
-    String data = userKey + "@" + tokenKey + "@" + randomString;
-    return Base62.encode(data + "&&" + sign.signHex(data));
+    String data = userKey + "@" + tokenKey + "@" + UuidUtil.uuid();
+    try {
+      String s = data + "&&" + RsaUtils.sign(data, config.getSignPrivateKey());
+      return Base62.encode(s.getBytes(UTF8));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /** 初始化配置 */
   static void initConfig(AuthTokenConfig authTokenConfig, ApplicationContext applicationContext) {
     config = authTokenConfig;
-    sign =
-        new Sign(
-            SignAlgorithm.SHA256withRSA,
-            config.getSignPrivateKeyBase64(),
-            config.getSignPublicKeyBase64());
     tokenStore = applicationContext.getBean(TokenStoreInterface.class);
   }
 }

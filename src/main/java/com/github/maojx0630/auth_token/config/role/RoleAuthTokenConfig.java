@@ -4,6 +4,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 /**
+ * 角色拦截器配置项
+ *
  * @author 毛家兴
  * @since 2022/10/19 15:17
  */
@@ -11,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "auth-token.role")
 public class RoleAuthTokenConfig {
 
-  /** 是否启用角色拦截器 */
+  /** 是否启用角色拦截器 开启需实现RoleInfoInterface */
   private boolean enable = false;
 
   /** 角色拦截器执行顺序 */

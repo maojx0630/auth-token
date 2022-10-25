@@ -1,7 +1,7 @@
 package com.github.maojx0630.auth_token.login;
 
-import cn.hutool.core.util.StrUtil;
 import com.github.maojx0630.auth_token.config.AuthTokenConfig;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,7 +26,7 @@ public class AuthTokenInterceptor implements HandlerInterceptor {
       HttpServletRequest request, HttpServletResponse response, Object handler) {
     if (authTokenConfig.isReadHeader()) {
       String token = request.getHeader(authTokenConfig.getTokenName());
-      if (StrUtil.isNotBlank(token)) {
+      if (StringUtils.hasText(token)) {
         if (AuthTokenUtil.verifyToken(token)) {
           return true;
         }
@@ -34,7 +34,7 @@ public class AuthTokenInterceptor implements HandlerInterceptor {
     }
     if (authTokenConfig.isReadHeader()) {
       String token = request.getParameter(authTokenConfig.getTokenName());
-      if (StrUtil.isNotBlank(token)) {
+      if (StringUtils.hasText(token)) {
         if (AuthTokenUtil.verifyToken(token)) {
           return true;
         }

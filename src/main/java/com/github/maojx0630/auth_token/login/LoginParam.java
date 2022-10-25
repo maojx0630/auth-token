@@ -1,7 +1,7 @@
 package com.github.maojx0630.auth_token.login;
 
-import cn.hutool.core.util.StrUtil;
 import com.github.maojx0630.auth_token.config.AuthTokenConfig;
+import org.springframework.util.StringUtils;
 
 /**
  * @author 毛家兴
@@ -65,13 +65,13 @@ public class LoginParam {
     if (null == loginTime) {
       loginTime = System.currentTimeMillis();
     }
-    if (StrUtil.isBlank(userType)) {
+    if (!StringUtils.hasText(userType)) {
       userType = "default";
     }
-    if (StrUtil.isBlank(deviceType)) {
+    if (!StringUtils.hasText(deviceType)) {
       deviceType = "unknown";
     }
-    if (StrUtil.isBlank(deviceName)) {
+    if (!StringUtils.hasText(deviceName)) {
       deviceName = "未知设备";
     }
     return this;

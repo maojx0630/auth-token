@@ -4,6 +4,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 /**
+ * 权限拦截器配置项
+ *
  * @author 毛家兴
  * @since 2022/10/19 15:15
  */
@@ -11,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "auth-token.permissions")
 public class PermissionsAuthTokenConfig {
 
-  /** 是否启用权限拦截器 */
+  /** 是否启用权限拦截器 启用需实现PermissionsInfoInterface接口 */
   private boolean enable = false;
 
   /** 权限拦截器执行顺序 */

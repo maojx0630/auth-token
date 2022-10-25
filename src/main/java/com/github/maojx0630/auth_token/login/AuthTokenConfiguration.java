@@ -19,9 +19,7 @@ public class AuthTokenConfiguration implements WebMvcConfigurer, InitializingBea
   private final ApplicationContext applicationContext;
 
   public AuthTokenConfiguration(AuthTokenConfig config, ApplicationContext applicationContext) {
-
     this.config = config;
-
     this.applicationContext = applicationContext;
   }
 

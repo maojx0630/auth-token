@@ -1,11 +1,11 @@
 package com.github.maojx0630.auth_token.core.permissions;
 
-import cn.hutool.core.util.StrUtil;
-import com.github.maojx0630.auth_token.login.AuthTokenUtil;
 import com.github.maojx0630.auth_token.config.permissions.PermissionsAuthTokenConfig;
+import com.github.maojx0630.auth_token.login.AuthTokenUtil;
 import com.github.maojx0630.auth_token.util.CollOrElseUtil;
 import com.github.maojx0630.auth_token.util.ResponseUtils;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -63,10 +63,10 @@ public class PermissionsInterceptor implements HandlerInterceptor {
   }
 
   private boolean checkHttpMethod(String httpMethod, PermissionsModel model) {
-    if (StrUtil.isBlank(model.getHttpMethod())) {
-      return true;
-    } else {
+    if (StringUtils.hasText(model.getHttpMethod())) {
       return httpMethod.equalsIgnoreCase(model.getHttpMethod());
+    } else {
+      return true;
     }
   }
 }
