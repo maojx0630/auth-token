@@ -27,7 +27,7 @@ public class AuthTokenRes {
   /** 用户类型 */
   private String userType;
 
-  /** 最后一次访问时间 */
+  /** 最后一次访问时间 如果访问不重置则为登录时间 */
   private Long lastAccessTime;
 
   /** 设备类型 */

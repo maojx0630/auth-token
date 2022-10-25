@@ -130,7 +130,7 @@ public final class AuthTokenUtil {
     res.setTimeout(param.timeout);
     res.setUserType(param.userType);
     res.setLoginTime(param.loginTime);
-    res.setLastAccessTime(System.currentTimeMillis());
+    res.setLastAccessTime(param.loginTime);
     res.setDeviceType(param.deviceType);
     res.setDeviceName(param.deviceName);
     res.setTokenKey(UuidUtil.uuid());
