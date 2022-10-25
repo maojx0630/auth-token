@@ -1,4 +1,4 @@
-package com.github.maojx0630.auth_token;
+package com.github.maojx0630.auth_token.login;
 
 import com.github.maojx0630.auth_token.config.AuthTokenConfig;
 import org.springframework.beans.factory.InitializingBean;

@@ -1,17 +1,17 @@
 package com.github.maojx0630.auth_token.core.permissions;
 
-import com.github.maojx0630.auth_token.AuthTokenUtil;
+import cn.hutool.core.util.StrUtil;
+import com.github.maojx0630.auth_token.login.AuthTokenUtil;
 import com.github.maojx0630.auth_token.config.permissions.PermissionsAuthTokenConfig;
-import com.github.maojx0630.auth_token.model.AuthTokenRes;
+import com.github.maojx0630.auth_token.util.CollOrElseUtil;
 import com.github.maojx0630.auth_token.util.ResponseUtils;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * 权限拦截器
@@ -34,24 +34,39 @@ public class PermissionsInterceptor implements HandlerInterceptor {
   @Override
   public boolean preHandle(
       HttpServletRequest request, HttpServletResponse response, Object handler) {
+    boolean isCheck = true;
     String uri = request.getRequestURI();
-    Optional<AuthTokenRes> optUser = AuthTokenUtil.getOptUser();
-    if (optUser.isPresent()) {
-      AntPathMatcher matcher = new AntPathMatcher();
-      AuthTokenRes res = optUser.get();
-      List<String> userPermissionsList = permissionsInfo.getUserPermissionsInfo(res);
-      for (PermissionsModel model :
-          permissionsInfo.getAllPermissionsList().stream()
-              .filter(item -> userPermissionsList.contains(item.getPermissions()))
-              .collect(Collectors.toList())) {
-        // 如果拥有权限命中 就拥有权限
-        if (matcher.match(model.getPathPatterns(), uri)) {
+    AntPathMatcher matcher = new AntPathMatcher();
+    List<String> userPermissionsList = new ArrayList<>();
+    AuthTokenUtil.getOptUser()
+        .ifPresent(
+            user ->
+                userPermissionsList.addAll(
+                    CollOrElseUtil.get(permissionsInfo.getUserPermissionsInfo(user))));
+    for (PermissionsModel model : CollOrElseUtil.get(permissionsInfo.getAllPermissionsList())) {
+      // 如果拥有权限命中 就拥有权限
+      if (checkHttpMethod(request.getMethod(), model)
+          && matcher.match(model.getPathPatterns(), uri)) {
+        isCheck = false;
+        if (userPermissionsList.contains(model.getPermissions())) {
           return true;
         }
       }
     }
-    ResponseUtils.writeStr(
-        response, permissionsConfig.getHttpCode(), permissionsConfig.getMessage());
-    return false;
+    if (isCheck) {
+      return true;
+    } else {
+      ResponseUtils.writeStr(
+          response, permissionsConfig.getHttpCode(), permissionsConfig.getMessage());
+      return false;
+    }
+  }
+
+  private boolean checkHttpMethod(String httpMethod, PermissionsModel model) {
+    if (StrUtil.isBlank(model.getHttpMethod())) {
+      return true;
+    } else {
+      return httpMethod.equalsIgnoreCase(model.getHttpMethod());
+    }
   }
 }

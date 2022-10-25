@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
  * @author 毛家兴
  * @since 2022/10/19 15:30
  */
-public abstract class ResponseUtils {
+public final class ResponseUtils {
 
   private ResponseUtils() {}
 

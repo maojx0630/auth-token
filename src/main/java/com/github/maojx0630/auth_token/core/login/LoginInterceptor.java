@@ -1,6 +1,6 @@
 package com.github.maojx0630.auth_token.core.login;
 
-import com.github.maojx0630.auth_token.AuthTokenUtil;
+import com.github.maojx0630.auth_token.login.AuthTokenUtil;
 import com.github.maojx0630.auth_token.config.login.LoginAuthTokenConfig;
 import com.github.maojx0630.auth_token.util.ResponseUtils;
 import org.springframework.web.servlet.HandlerInterceptor;

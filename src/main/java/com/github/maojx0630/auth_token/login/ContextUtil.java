@@ -1,4 +1,4 @@
-package com.github.maojx0630.auth_token;
+package com.github.maojx0630.auth_token.login;
 
 import org.springframework.context.ApplicationContext;
 
@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationContext;
  * @author 毛家兴
  * @since 2022/10/18 15:20
  */
-public abstract class ContextUtil {
+public final class ContextUtil {
 
   private static ApplicationContext context;
 

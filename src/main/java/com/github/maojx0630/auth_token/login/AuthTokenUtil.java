@@ -1,4 +1,4 @@
-package com.github.maojx0630.auth_token;
+package com.github.maojx0630.auth_token.login;
 
 import cn.hutool.core.codec.Base62;
 import cn.hutool.core.collection.CollUtil;
@@ -9,20 +9,16 @@ import com.alibaba.ttl.TransmittableThreadLocal;
 import com.github.maojx0630.auth_token.config.AuthTokenConfig;
 import com.github.maojx0630.auth_token.exception.AuthTokenException;
 import com.github.maojx0630.auth_token.model.AuthTokenRes;
-import com.github.maojx0630.auth_token.model.LoginParam;
 import com.github.maojx0630.auth_token.store.TokenStoreInterface;
 import org.springframework.context.ApplicationContext;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author 毛家兴
  * @since 2022/10/18 14:27
  */
-public abstract class AuthTokenUtil {
+public final class AuthTokenUtil {
 
   /** THREAD_LOCAL */
   private static final TransmittableThreadLocal<AuthTokenRes> THREAD_LOCAL =
@@ -58,6 +54,29 @@ public abstract class AuthTokenUtil {
     return Optional.ofNullable(THREAD_LOCAL.get());
   }
 
+  /**
+   * 获取全部用户key
+   *
+   * @return java.util.Collection<java.lang.String>
+   * @author 毛家兴
+   * @since 2022/10/25 10:58
+   */
+  public static Collection<String> getAllUserKey() {
+    clearOverdueToken();
+    return tokenStore.getAllUserKey();
+  }
+
+  /** 获取当前登录用户的全部登录信息 */
+  public static Collection<AuthTokenRes> getUserAllDevice() {
+    return getUserAllDevice(getUser().getUserKey());
+  }
+
+  /** 获取所有用户的登录信息 */
+  private static Collection<AuthTokenRes> getUserAllDevice(String userKey) {
+    clearOverdueUser(userKey);
+    return tokenStore.getUserAll(userKey);
+  }
+
   /** 用户登录功能 */
   public static AuthTokenRes login(String id) {
     return login(id, null);
@@ -74,16 +93,16 @@ public abstract class AuthTokenUtil {
    */
   public static AuthTokenRes login(String id, LoginParam param) {
     // 完善参数信息
-    param = Optional.ofNullable(param).orElse(new LoginParam()).build();
+    param = Optional.ofNullable(param).orElse(LoginParam.builder().build()).completion(config);
     // 构建登录信息
     AuthTokenRes res = new AuthTokenRes();
     res.setId(id);
-    res.setTimeout(param.getTimeout());
-    res.setUserType(param.getUserType());
-    res.setLoginTime(System.currentTimeMillis());
+    res.setTimeout(param.timeout);
+    res.setUserType(param.userType);
+    res.setLoginTime(param.loginTime);
     res.setLastAccessTime(System.currentTimeMillis());
-    res.setDeviceType(param.getDeviceType());
-    res.setDeviceName(param.getDeviceName());
+    res.setDeviceType(param.deviceType);
+    res.setDeviceName(param.deviceName);
     res.setTokenKey(IdUtil.fastSimpleUUID());
     res.setUserKey(config.getRedisHead() + "_" + res.getUserType() + "_" + res.getId());
     res.setToken(generateToken(res.getUserKey(), res.getTokenKey()));
@@ -93,18 +112,19 @@ public abstract class AuthTokenUtil {
     }
     // 同端互斥移除登录
     if (config.isDeviceReject()) {
+      Set<String> keySet = new HashSet<>();
       for (AuthTokenRes tokenRes : tokenStore.getUserAll(res.getUserKey())) {
-        Set<String> keySet = new HashSet<>();
         if (res.getDeviceType().equals(tokenRes.getDeviceType())) {
-          keySet.add(res.getTokenKey());
+          keySet.add(tokenRes.getTokenKey());
         }
-        if (CollUtil.isNotEmpty(keySet)) {
-          tokenStore.removeToken(res.getUserKey(), keySet);
-        }
+      }
+      if (CollUtil.isNotEmpty(keySet)) {
+        tokenStore.removeToken(res.getUserKey(), keySet);
       }
     }
     // 设置登录信息 缓存token
     setThreadLocal(res);
+    clearOverdueUser(res.getUserKey());
     tokenStore.put(res.getUserKey(), res.getTokenKey(), res);
     return res;
   }
@@ -196,6 +216,17 @@ public abstract class AuthTokenUtil {
     }
   }
 
+  public static void clearOverdueUser(String userKey) {
+    Collection<AuthTokenRes> userAll = tokenStore.getUserAll(userKey);
+    if (CollUtil.isNotEmpty(userAll)) {
+      checkOverdue(userKey, userAll);
+    } else {
+      if (userAll != null) {
+        tokenStore.removeUser(userKey);
+      }
+    }
+  }
+
   /**
    * 清理过期token
    *
@@ -203,26 +234,28 @@ public abstract class AuthTokenUtil {
    * @since 2022/10/24 10:10
    */
   public static void clearOverdueToken() {
-    for (String userKey : tokenStore.getAllUserKey()) {
-      for (AuthTokenRes res : tokenStore.getUserAll(userKey)) {
-        if (res.getTimeout() > System.currentTimeMillis() - res.getLastAccessTime()) {
-          tokenStore.removeToken(res.getUserKey(), res.getTokenKey());
+    Collection<String> allUserKey = tokenStore.getAllUserKey();
+    if (CollUtil.isNotEmpty(allUserKey)) {
+      for (String userKey : allUserKey) {
+        Collection<AuthTokenRes> userAll = tokenStore.getUserAll(userKey);
+        if (CollUtil.isNotEmpty(userAll)) {
+          checkOverdue(userKey, userAll);
         }
       }
     }
   }
 
-  /**
-   * 清理 token为0的user key (线程不安全)
-   *
-   * @author 毛家兴
-   * @since 2022/10/24 10:11
-   */
-  public static void clearOverdueUserKey() {
-    for (String userKey : tokenStore.getAllUserKey()) {
-      if (CollUtil.isEmpty(tokenStore.getUserAllTokenKey(userKey))) {
-        tokenStore.removeUser(userKey);
+  private static void checkOverdue(String userKey, Collection<AuthTokenRes> userAll) {
+    int size = userAll.size();
+    int count = 0;
+    for (AuthTokenRes res : userAll) {
+      if (res.getTimeout() <= System.currentTimeMillis() - res.getLastAccessTime()) {
+        count++;
+        tokenStore.removeToken(res.getUserKey(), res.getTokenKey());
       }
+    }
+    if (size == count) {
+      tokenStore.removeUser(userKey);
     }
   }
 

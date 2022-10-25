@@ -1,17 +1,16 @@
 package com.github.maojx0630.auth_token.core.role;
 
-import com.github.maojx0630.auth_token.AuthTokenUtil;
+import com.github.maojx0630.auth_token.login.AuthTokenUtil;
 import com.github.maojx0630.auth_token.config.role.RoleAuthTokenConfig;
-import com.github.maojx0630.auth_token.model.AuthTokenRes;
+import com.github.maojx0630.auth_token.util.CollOrElseUtil;
 import com.github.maojx0630.auth_token.util.ResponseUtils;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * 角色拦截器
@@ -33,32 +32,37 @@ public class RoleInterceptor implements HandlerInterceptor {
   @Override
   public boolean preHandle(
       HttpServletRequest request, HttpServletResponse response, Object handler) {
+    boolean isCheck = true;
     String uri = request.getRequestURI();
-    Optional<AuthTokenRes> optUser = AuthTokenUtil.getOptUser();
-    if (optUser.isPresent()) {
-      AntPathMatcher matcher = new AntPathMatcher();
-      AuthTokenRes res = optUser.get();
-      List<String> userRoleInfo = roleInfoInterface.getUserRoleInfo(res);
-      ag:
-      for (RoleModel role :
-          roleInfoInterface.getAllRoleList().stream()
-              .filter(item -> userRoleInfo.contains(item.getRole()))
-              .collect(Collectors.toList())) {
-        for (String pattern : role.getExcludePathPatterns()) {
-          // 如果是被排除路径命中 这个角色就不通过
-          if (matcher.match(pattern, uri)) {
-            continue ag;
-          }
+    AntPathMatcher matcher = new AntPathMatcher();
+    List<String> userRoleInfo = new ArrayList<>();
+    AuthTokenUtil.getOptUser()
+        .ifPresent(
+            user ->
+                userRoleInfo.addAll(CollOrElseUtil.get(roleInfoInterface.getUserRoleInfo(user))));
+    ag:
+    for (RoleModel role : CollOrElseUtil.get(roleInfoInterface.getAllRoleList())) {
+      for (String pattern : CollOrElseUtil.get(role.getExcludePathPatterns())) {
+        // 如果是被排除路径命中 这个角色就不通过
+        if (matcher.match(pattern, uri)) {
+          continue ag;
         }
-        // 如果拥有权限命中 就拥有权限
-        for (String pattern : role.getPathPatterns()) {
-          if (matcher.match(pattern, uri)) {
+      }
+      // 如果拥有权限命中 就拥有权限
+      for (String pattern : CollOrElseUtil.get(role.getPathPatterns())) {
+        if (matcher.match(pattern, uri)) {
+          isCheck = false;
+          if (userRoleInfo.contains(role.getRole())) {
             return true;
           }
         }
       }
     }
-    ResponseUtils.writeStr(response, roleConfig.getHttpCode(), roleConfig.getMessage());
-    return false;
+    if (isCheck) {
+      return true;
+    } else {
+      ResponseUtils.writeStr(response, roleConfig.getHttpCode(), roleConfig.getMessage());
+      return false;
+    }
   }
 }
