@@ -18,12 +18,17 @@ import java.util.Arrays;
 public final class RsaUtils {
 
   /**
-   * 生成一堆密钥
-   *
-   * @return Rsa对象，保存一对密钥
+   * @return com.github.maojx0630.auth_token.util.rsa.RsaEntity
+   * @author 毛家兴
+   * @since 2022/10/26 09:12
    */
-  public static RsaEntity createKeyPair() throws Exception {
-    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+  public static RsaEntity createKeyPair() {
+    KeyPairGenerator keyPairGenerator = null;
+    try {
+      keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
     keyPairGenerator.initialize(1024);
     // 生成密钥对mvnc
     KeyPair keyPair = keyPairGenerator.generateKeyPair();
@@ -41,16 +46,19 @@ public final class RsaUtils {
    * @param publicKey 公钥
    * @return 密文
    */
-  public static String encryptWithRSA(String str, String publicKey) throws Exception {
-
-    // 获取一个加密算法为RSA的加解密器对象cipher。
-    Cipher cipher = Cipher.getInstance("RSA");
-    // 设置为加密模式,并将公钥给cipher。
-    cipher.init(Cipher.ENCRYPT_MODE, getPublicKey(publicKey));
-    // 获得密文
-    byte[] secret = cipher.doFinal(str.getBytes());
-    // 进行Base62编码
-    return Base62.encode(secret);
+  public static String encryptWithRSA(String str, String publicKey) {
+    try {
+      // 获取一个加密算法为RSA的加解密器对象cipher。
+      Cipher cipher = Cipher.getInstance("RSA");
+      // 设置为加密模式,并将公钥给cipher。
+      cipher.init(Cipher.ENCRYPT_MODE, getPublicKey(publicKey));
+      // 获得密文
+      byte[] secret = cipher.doFinal(str.getBytes());
+      // 进行Base62编码
+      return Base62.encode(secret);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
@@ -60,30 +68,56 @@ public final class RsaUtils {
    * @param privateKey 私钥
    * @return 解密后字符串
    */
-  public static String decryptWithRSA(String secret, String privateKey) throws Exception {
-    Cipher cipher = Cipher.getInstance("RSA");
-    // 传递私钥，设置为解密模式。
-    cipher.init(Cipher.DECRYPT_MODE, getPrivateKey(privateKey));
-    // 解密器解密由Base62解码后的密文,获得明文字节数组
-    byte[] b = cipher.doFinal(Base62.decode(secret));
-    // 转换成字符串
-    return new String(b);
+  public static String decryptWithRSA(String secret, String privateKey) {
+    try {
+      Cipher cipher = Cipher.getInstance("RSA");
+      // 传递私钥，设置为解密模式。
+      cipher.init(Cipher.DECRYPT_MODE, getPrivateKey(privateKey));
+      // 解密器解密由Base62解码后的密文,获得明文字节数组
+      byte[] b = cipher.doFinal(Base62.decode(secret));
+      // 转换成字符串
+      return new String(b);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
-  /** 将公钥转化为公钥对象 */
-  public static PublicKey getPublicKey(String key) throws Exception {
-    byte[] keyBytes = toByte(key);
-    X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
-    KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-    return keyFactory.generatePublic(keySpec);
+  /**
+   * 获取公钥对象
+   *
+   * @param key 公钥字符串
+   * @return java.security.PublicKey
+   * @author 毛家兴
+   * @since 2022/10/26 09:13
+   */
+  public static PublicKey getPublicKey(String key) {
+    try {
+      byte[] keyBytes = toByte(key);
+      X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
+      KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+      return keyFactory.generatePublic(keySpec);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
-  /** 将私钥转化为私钥对象 */
-  public static PrivateKey getPrivateKey(String key) throws Exception {
-    byte[] keyBytes = toByte(key);
-    PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
-    KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-    return keyFactory.generatePrivate(keySpec);
+  /**
+   * 获取私钥对象
+   *
+   * @param key 私钥
+   * @return java.security.PrivateKey
+   * @author 毛家兴
+   * @since 2022/10/26 09:14
+   */
+  public static PrivateKey getPrivateKey(String key) {
+    try {
+      byte[] keyBytes = toByte(key);
+      PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+      KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+      return keyFactory.generatePrivate(keySpec);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
@@ -93,13 +127,17 @@ public final class RsaUtils {
    * @param privateKey 私钥
    * @return 签名
    */
-  public static String sign(String content, String privateKey) throws Exception {
-    // 用私钥对信息生成数字签名
-    Signature stool = Signature.getInstance("MD5WithRSA");
-    stool.initSign(getPrivateKey(privateKey));
-    stool.update(content.getBytes("utf-8"));
-    byte[] data = stool.sign();
-    return Base62.encode(data);
+  public static String sign(String content, String privateKey) {
+    try {
+      // 用私钥对信息生成数字签名
+      Signature stool = Signature.getInstance("MD5WithRSA");
+      stool.initSign(getPrivateKey(privateKey));
+      stool.update(content.getBytes("utf-8"));
+      byte[] data = stool.sign();
+      return Base62.encode(data);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
@@ -110,69 +148,80 @@ public final class RsaUtils {
    * @param publicKey 公钥
    * @return 是否有效签名
    */
-  public static boolean verify(String content, String signature, String publicKey)
-      throws Exception {
-    Signature stool = Signature.getInstance("MD5WithRSA");
-    stool.initVerify(getPublicKey(publicKey));
-    stool.update(content.getBytes("utf-8"));
-    // 验证签名是否正常
-    return stool.verify(Base62.decode(signature));
-  }
-
-  public static String encText(String data, String publicKey) throws Exception {
-    // 获取一个加密算法为RSA的加解密器对象cipher。
-    Cipher cipher = Cipher.getInstance("RSA");
-    // 设置为加密模式,并将公钥给cipher。
-    cipher.init(Cipher.ENCRYPT_MODE, getPublicKey(publicKey));
-    // 获得密文
-    byte[] bytes = data.getBytes();
-    if (bytes.length > 117) {
-      byte[][] dataBytes = splitBytes(bytes);
-      byte[][] result = new byte[dataBytes.length][];
-      for (int i = 0; i < dataBytes.length; i++) {
-        result[i] = cipher.doFinal(dataBytes[i]);
-      }
-      StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < result.length; i++) {
-        sb.append(Base62.encode(result[i]));
-        if (result.length - 1 != i) {
-          sb.append(",");
-        }
-      }
-      return sb.toString();
-    } else {
-      byte[] secret = cipher.doFinal(bytes);
-      // 进行Base62编码
-      return Base62.encode(secret);
+  public static boolean verify(String content, String signature, String publicKey) {
+    try {
+      Signature stool = Signature.getInstance("MD5WithRSA");
+      stool.initVerify(getPublicKey(publicKey));
+      stool.update(content.getBytes("utf-8"));
+      // 验证签名是否正常
+      return stool.verify(Base62.decode(signature));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
   }
 
-  public static String decText(String secret, String privateKey) throws Exception {
-    Cipher cipher = Cipher.getInstance("RSA");
-    // 传递私钥，设置为解密模式。
-    cipher.init(Cipher.DECRYPT_MODE, RsaUtils.getPrivateKey(privateKey));
-    // 解密器解密由Base62解码后的密文,获得明文字节数组
-    if (secret.contains(",")) {
-      String[] strings = secret.split(",");
-      byte[][] bytes = new byte[strings.length][];
-      int length = 0;
-      for (int i = 0; i < strings.length; i++) {
-        bytes[i] = cipher.doFinal(Base62.decode(strings[i]));
-        length += bytes[i].length;
-      }
-      byte[] byteResult = new byte[length];
-      int index = 0;
-      for (byte[] aByte : bytes) {
-        for (byte b : aByte) {
-          byteResult[index] = b;
-          index++;
+  public static String encText(String data, String publicKey) {
+    try {
+      // 获取一个加密算法为RSA的加解密器对象cipher。
+      Cipher cipher = Cipher.getInstance("RSA");
+      // 设置为加密模式,并将公钥给cipher。
+      cipher.init(Cipher.ENCRYPT_MODE, getPublicKey(publicKey));
+      // 获得密文
+      byte[] bytes = data.getBytes();
+      if (bytes.length > 117) {
+        byte[][] dataBytes = splitBytes(bytes);
+        byte[][] result = new byte[dataBytes.length][];
+        for (int i = 0; i < dataBytes.length; i++) {
+          result[i] = cipher.doFinal(dataBytes[i]);
         }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < result.length; i++) {
+          sb.append(Base62.encode(result[i]));
+          if (result.length - 1 != i) {
+            sb.append(",");
+          }
+        }
+        return sb.toString();
+      } else {
+        byte[] secret = cipher.doFinal(bytes);
+        // 进行Base62编码
+        return Base62.encode(secret);
       }
-      return new String(byteResult);
-    } else {
-      byte[] b = cipher.doFinal(Base62.decode(secret));
-      // 转换成字符串
-      return new String(b);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static String decText(String secret, String privateKey) {
+    try {
+      Cipher cipher = Cipher.getInstance("RSA");
+      // 传递私钥，设置为解密模式。
+      cipher.init(Cipher.DECRYPT_MODE, RsaUtils.getPrivateKey(privateKey));
+      // 解密器解密由Base62解码后的密文,获得明文字节数组
+      if (secret.contains(",")) {
+        String[] strings = secret.split(",");
+        byte[][] bytes = new byte[strings.length][];
+        int length = 0;
+        for (int i = 0; i < strings.length; i++) {
+          bytes[i] = cipher.doFinal(Base62.decode(strings[i]));
+          length += bytes[i].length;
+        }
+        byte[] byteResult = new byte[length];
+        int index = 0;
+        for (byte[] aByte : bytes) {
+          for (byte b : aByte) {
+            byteResult[index] = b;
+            index++;
+          }
+        }
+        return new String(byteResult);
+      } else {
+        byte[] b = cipher.doFinal(Base62.decode(secret));
+        // 转换成字符串
+        return new String(b);
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -201,7 +250,7 @@ public final class RsaUtils {
     return Base62.encode(bytes);
   }
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     RsaEntity keyPair = createKeyPair();
     String publicKeyStr = keyPair.getPublicKeyStr();
     String privateKeyStr = keyPair.getPrivateKeyStr();

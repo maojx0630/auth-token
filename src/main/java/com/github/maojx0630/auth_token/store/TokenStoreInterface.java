@@ -38,7 +38,7 @@ public interface TokenStoreInterface {
   /**
    * 获取当前缓存的全部用户key
    *
-   * @return java.util.Collection<java.lang.String>
+   * @return java.util.Collection
    * @author 毛家兴
    * @since 2022/10/24 10:07
    */
@@ -48,7 +48,7 @@ public interface TokenStoreInterface {
    * 获取一个用户所有的登录信息
    *
    * @param userKey 用户key
-   * @return java.util.List<com.github.maojx0630.auth_token.model.AuthTokenRes>
+   * @return java.util.List
    * @author 毛家兴
    * @since 2022/10/19 10:27
    */
@@ -58,7 +58,7 @@ public interface TokenStoreInterface {
    * 获取一个用户所有的token key
    *
    * @param userKey 用户key
-   * @return java.util.List<java.lang.String>
+   * @return java.util.List
    * @author 毛家兴
    * @since 2022/10/19 13:41
    */

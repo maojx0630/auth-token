@@ -76,7 +76,7 @@ public final class AuthTokenUtil {
   /**
    * 获取登录用户 可能为空
    *
-   * @return java.util.Optional<com.github.maojx0630.auth_token.model.AuthTokenRes>
+   * @return java.util.Optional
    * @author 毛家兴
    * @since 2022/10/19 15:06
    */
@@ -87,7 +87,7 @@ public final class AuthTokenUtil {
   /**
    * 获取全部用户key
    *
-   * @return java.util.Collection<java.lang.String>
+   * @return java.util.Collection
    * @author 毛家兴
    * @since 2022/10/25 10:58
    */
@@ -96,7 +96,12 @@ public final class AuthTokenUtil {
     return tokenStore.getAllUserKey();
   }
 
-  /** 获取当前登录用户的全部登录信息 */
+  /**
+   *   获取当前登录用户的全部登录信息
+	 * @return java.util.Collection
+   * @author 毛家兴
+   * @since 2022/10/26 09:15
+   */
   public static Collection<AuthTokenRes> getUserAllDevice() {
     return getUserAllDevice(getUser().getUserKey());
   }
@@ -107,7 +112,13 @@ public final class AuthTokenUtil {
     return tokenStore.getUserAll(userKey);
   }
 
-  /** 用户登录功能 */
+  /**
+   * 用户登录功能
+	 * @param id  用户id
+	 * @return com.github.maojx0630.auth_token.model.AuthTokenRes
+   * @author 毛家兴
+   * @since 2022/10/26 09:15
+   */
   public static AuthTokenRes login(String id) {
     return login(id, null);
   }
