@@ -16,6 +16,14 @@
 
 ### 使用方法如下
 
+```xml
+<dependency>
+    <groupId>com.github.maojx0630</groupId>
+    <artifactId>auth-token-spring-boot-starter</artifactId>
+    <version>0.0.1</version>
+</dependency>
+```
+
 ```
 AuthTokenUtil.login("123");
 AuthTokenUtil.logout();
