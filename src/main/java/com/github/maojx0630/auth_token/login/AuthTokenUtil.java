@@ -1,6 +1,5 @@
 package com.github.maojx0630.auth_token.login;
 
-import com.alibaba.ttl.TransmittableThreadLocal;
 import com.github.maojx0630.auth_token.config.AuthTokenConfig;
 import com.github.maojx0630.auth_token.exception.AuthTokenException;
 import com.github.maojx0630.auth_token.model.AuthTokenRes;
@@ -26,8 +25,7 @@ public final class AuthTokenUtil {
   private static final Charset UTF8 = StandardCharsets.UTF_8;
 
   /** THREAD_LOCAL */
-  private static final TransmittableThreadLocal<AuthTokenRes> THREAD_LOCAL =
-      new TransmittableThreadLocal<>();
+  private static final ThreadLocal<AuthTokenRes> THREAD_LOCAL = new ThreadLocal<>();
 
   private static final String USER_TYPE = LoginParam.builder().build().userType;
   /** 配置文件 */
@@ -97,8 +95,9 @@ public final class AuthTokenUtil {
   }
 
   /**
-   *   获取当前登录用户的全部登录信息
-	 * @return java.util.Collection
+   * 获取当前登录用户的全部登录信息
+   *
+   * @return java.util.Collection
    * @author 毛家兴
    * @since 2022/10/26 09:15
    */
@@ -114,8 +113,9 @@ public final class AuthTokenUtil {
 
   /**
    * 用户登录功能
-	 * @param id  用户id
-	 * @return com.github.maojx0630.auth_token.model.AuthTokenRes
+   *
+   * @param id 用户id
+   * @return com.github.maojx0630.auth_token.model.AuthTokenRes
    * @author 毛家兴
    * @since 2022/10/26 09:15
    */

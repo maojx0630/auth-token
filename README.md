@@ -20,7 +20,7 @@
 <dependency>
     <groupId>com.github.maojx0630</groupId>
     <artifactId>auth-token-spring-boot-starter</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
 </dependency>
 ```
 
